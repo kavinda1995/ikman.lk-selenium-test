@@ -4,47 +4,63 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.interactions.Action;
 import org.openqa.selenium.interactions.Actions;
+import org.testng.annotations.BeforeTest;
 
-import javax.jws.WebService;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+
+import static org.testng.Assert.*;
+
+import org.testng.annotations.*;
 
 public class IkmanAssignment {
 
-    public static List<AdInfo> adInfoList = new ArrayList<AdInfo>();
+    private String baseURL = "https://ikman.lk";
+    private String driverPath = "C:\\SeleniumWebDriver\\chromedriver.exe";
+    private WebDriver driver;
+    private String numberOfAds;
+    private Boolean validation = true;
 
-    public static void main(String args[]) {
-
-        System.setProperty("webdriver.chrome.driver", "C:\\SeleniumWebDriver\\chromedriver.exe");
-        WebDriver driver = new ChromeDriver();
-
-        String baseUrl = "https://ikman.lk";
+    @BeforeTest
+    public void setUpBrowser() {
+        System.setProperty("webdriver.chrome.driver", driverPath);
+        driver = new ChromeDriver();
 
         //Opening the Browser
-        driver.get(baseUrl);
+        driver.get(baseURL);
         System.out.println("Opened page ikman.lk");
+    }
 
+    @Test(priority = 0)
+    public void openPropertyPage() {
         //Clicking the Property Button
         String pathToProperty = "/html[1]/body[1]/div[2]/div[2]/div[1]/div[3]/div[1]/div[1]/div[2]/a[1]";
-        WebElement propertyBtn = ((ChromeDriver) driver).findElementByXPath(pathToProperty);
+        WebElement propertyBtn = driver.findElement(By.xpath(pathToProperty));
         propertyBtn.click();
         System.out.println("Opened Property Page");
+    }
 
+    @Test(priority = 1)
+    public void openHousesPage() {
         //Clicking on Houses Filter link
         String housesFilterLink = "//a[@href='/en/ads/sri-lanka/houses?categoryType=ads&categoryName=Property']";
-        WebElement houseLink = ((ChromeDriver) driver).findElementByXPath(housesFilterLink);
+        WebElement houseLink = driver.findElement(By.xpath(housesFilterLink));
         houseLink.click();
         System.out.println("Opened Houses Page");
+    }
 
+    @Test(priority = 2)
+    public void selectColombo() {
         //Clicking on Colombo region filter
         String colomboFilterLink = "//a[@href='/en/ads/colombo/houses?categoryType=ads&categoryName=Houses&type=for_sale']";
-        WebElement colomboLink = ((ChromeDriver) driver).findElementByXPath(colomboFilterLink);
+        WebElement colomboLink = driver.findElement(By.xpath(colomboFilterLink));
         colomboLink.click();
         System.out.println("Opened Colombo Page");
+    }
 
+    @Test(priority = 3)
+    public void selectPrice() {
         //Click on Price filter
         String priceFilter = "//div[@class='ui-accordion-item filter-price']//a[@class='ui-accordion-title t-small']";
         WebElement priceFilterBtn = ((ChromeDriver) driver).findElementByXPath(priceFilter);
@@ -83,7 +99,10 @@ public class IkmanAssignment {
         WebElement applyFilterBtn = ((ChromeDriver) driver).findElementByXPath(applyFilter);
         applyFilterBtn.click();
         System.out.println("Applied Price Filter");
+    }
 
+    @Test(priority = 4)
+    public void selectBeds() {
         //Click on Beds Filter
         String bedsFilterLink = "//div[@class='ui-accordion-item filter-enum filter-bedrooms']//a[@class='ui-accordion-title t-small']";
         WebElement bedsFilter = ((ChromeDriver) driver).findElementByXPath(bedsFilterLink);
@@ -99,13 +118,17 @@ public class IkmanAssignment {
         String numberOfItemsPath = "//span[@class='t-small summary-count']";
         String numberOfItems = ((ChromeDriver) driver).findElementByXPath(numberOfItemsPath).getText();
         String[] expression = numberOfItems.split(" ");
-        numberOfItems = expression[3];
+        numberOfAds = expression[3];
         System.out.println("No of Ads Found : " + numberOfItems);
-        Integer nuOfAds = Integer.parseInt(numberOfItems);
+    }
+
+    @Test(priority = 5)
+    public void listAds() {
+        Integer nuOfAds = Integer.parseInt(numberOfAds);
         int adCounter = 1;
 
         //Iterate through all pages
-        for (int i = 0; i <= (nuOfAds / 25); i++) {
+        for (int i = 0; i <= (nuOfAds / 27); i++) {
 
             //Get ads on one page to a list
             int count = 0;
@@ -139,6 +162,7 @@ public class IkmanAssignment {
                         adCounter++;
                     } else {
                         System.out.println("Ad Number " + (adCounter) + "'s Validation failed");
+                        validation = false;
                         count++;
                         adCounter++;
                     }
@@ -154,14 +178,16 @@ public class IkmanAssignment {
                 System.out.println("End of ads");
             }
         }
-
-
     }
 
-
-//    public void clickProperty(driver) {
-//        String pathToProperty = "/html[1]/body[1]/div[2]/div[2]/div[1]/div[3]/div[1]/div[1]/div[2]/a[1]";
-//        WebElement propertyBtn = driver
-//    }
+    @AfterTest
+    public void closeBrowser() {
+        if (!validation) {
+            System.out.println("Some validations are failed");
+        } else {
+            System.out.println("All validations succeeded");
+        }
+        driver.close();
+    }
 
 }
